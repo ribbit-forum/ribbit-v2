@@ -1,8 +1,6 @@
-
-
 #[derive(Drop, Serde, starknet::Store)]
 struct Post {
-    message: felt252, // bytearray
+    message: ByteArray,
     deleted: bool,
 }
 
@@ -11,7 +9,7 @@ trait ISimpleStorage<TContractState> {
     fn set(ref self: TContractState, x: u128);
     fn get(self: @TContractState) -> u128;
     fn getPostLength(self: @TContractState) -> u128;
-    fn addPost(ref self: TContractState, message: felt252);
+    fn addPost(ref self: TContractState, message: ByteArray);
     fn getAllPosts(self: @TContractState) -> Array<Post>;
 }
 
@@ -30,7 +28,6 @@ mod SimpleStorage {
         postLength: u128,
     }
 
-
     #[abi(embed_v0)]
     impl SimpleStorage of super::ISimpleStorage<ContractState> {
         fn set(ref self: ContractState, x: u128) {
@@ -42,7 +39,7 @@ mod SimpleStorage {
         fn getPostLength(self: @ContractState) -> u128 {
             self.postLength.read()
         }
-        fn addPost(ref self: ContractState, message: felt252) {
+        fn addPost(ref self: ContractState, message: ByteArray) {
             let _new_post = Post {
                 message: message,
                 deleted: false
