@@ -5,8 +5,11 @@ struct Post {
     timestamp: u32,
     topic: felt252,
     likes: u32,
+    //messages: LegacyMap::<u128, felt252>,
     deleted: bool,
 }
+
+// struct message
 
 #[starknet::interface]
 trait ISimpleStorage<TContractState> {
@@ -14,6 +17,7 @@ trait ISimpleStorage<TContractState> {
     fn addPost(ref self: TContractState, userAddress: u64, message: felt252, timestamp: u32, topic: felt252);
     fn getPost(self: @TContractState, index: u128) -> Post;
     fn getAllPosts(self: @TContractState) -> Array<Post>;
+    fn addLike(ref self: TContractState, index: u128);
 }
 
 #[starknet::contract]
@@ -36,17 +40,36 @@ mod SimpleStorage {
             self.postLength.read()
         }
         fn addPost(ref self: ContractState, userAddress: u64, message: felt252, timestamp: u32, topic: felt252) {
+            //let mut messageArray = ArrayTrait::<felt252>::new();
+
             let _new_post = Post {
                 userAddress: userAddress,
                 message: message,
                 timestamp: timestamp,
                 topic: topic,
                 likes: 0,
+                //messages: LegacyMap::new,
                 deleted: false
             };
             let _currentPostLength = self.postLength.read();
             self.posts.write(_currentPostLength, _new_post);
             self.postLength.write(_currentPostLength + 1);
+        }
+        fn addLike(ref self: ContractState, index: u128) {
+            let _currentPostLength = self.postLength.read();
+            assert!(index >= 0, "index is negative");
+            assert!(index < _currentPostLength, "index is more than the number of posts");
+            let mut post = self.posts.read(index);
+            let _new_post = Post {
+                userAddress: post.userAddress,
+                message: post.message,
+                timestamp: post.timestamp,
+                topic: post.topic,
+                likes: post.likes + 1,
+                //messages: LegacyMap::new,
+                deleted: post.deleted,
+            };
+            self.posts.write(index, _new_post);
         }
         fn getPost(self: @ContractState, index: u128) -> Post {
             let _currentPostLength = self.postLength.read();
