@@ -1,6 +1,8 @@
+use starknet::ContractAddress;
+
 #[derive(Drop, Serde, starknet::Store)]
 struct Post {
-    userAddress: u64,
+    userAddress: ContractAddress,
     message: felt252,
     timestamp: u32,
     topic: felt252,
@@ -14,7 +16,7 @@ struct Post {
 #[starknet::interface]
 trait ISimpleStorage<TContractState> {
     fn getPostLength(self: @TContractState) -> u128;
-    fn addPost(ref self: TContractState, userAddress: u64, message: felt252, timestamp: u32, topic: felt252);
+    fn addPost(ref self: TContractState, userAddress: ContractAddress, message: felt252, timestamp: u32, topic: felt252);
     fn getPost(self: @TContractState, index: u128) -> Post;
     fn getAllPosts(self: @TContractState) -> Array<Post>;
     fn addLike(ref self: TContractState, index: u128);
@@ -39,7 +41,7 @@ mod SimpleStorage {
         fn getPostLength(self: @ContractState) -> u128 {
             self.postLength.read()
         }
-        fn addPost(ref self: ContractState, userAddress: u64, message: felt252, timestamp: u32, topic: felt252) {
+        fn addPost(ref self: ContractState, userAddress: ContractAddress, message: felt252, timestamp: u32, topic: felt252) {
             //let mut messageArray = ArrayTrait::<felt252>::new();
 
             let _new_post = Post {
